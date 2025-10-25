@@ -6,9 +6,10 @@ import (
 	"fullcycle-auction_go/configuration/logger"
 	"fullcycle-auction_go/internal/entity/auction_entity"
 	"fullcycle-auction_go/internal/internal_error"
+	"time"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"time"
 )
 
 func (ar *AuctionRepository) FindAuctionById(
@@ -62,6 +63,56 @@ func (repo *AuctionRepository) FindAuctions(
 	if err := cursor.All(ctx, &auctionsMongo); err != nil {
 		logger.Error("Error decoding auctions", err)
 		return nil, internal_error.NewInternalServerError("Error decoding auctions")
+	}
+
+	var auctionsEntity []auction_entity.Auction
+	for _, auction := range auctionsMongo {
+		auctionsEntity = append(auctionsEntity, auction_entity.Auction{
+			Id:          auction.Id,
+			ProductName: auction.ProductName,
+			Category:    auction.Category,
+			Status:      auction.Status,
+			Description: auction.Description,
+			Condition:   auction.Condition,
+			Timestamp:   time.Unix(auction.Timestamp, 0),
+		})
+	}
+
+	return auctionsEntity, nil
+}
+
+func (ar *AuctionRepository) UpdateAuctionStatus(
+	ctx context.Context, id string, status auction_entity.AuctionStatus) *internal_error.InternalError {
+	filter := bson.M{"_id": id}
+	update := bson.M{"$set": bson.M{"status": status}}
+
+	_, err := ar.Collection.UpdateOne(ctx, filter, update)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Error trying to update auction status for id = %s", id), err)
+		return internal_error.NewInternalServerError("Error trying to update auction status")
+	}
+
+	return nil
+}
+
+func (ar *AuctionRepository) FindActiveAuctionsOlderThan(
+	ctx context.Context, timestamp int64) ([]auction_entity.Auction, *internal_error.InternalError) {
+	filter := bson.M{
+		"status":    auction_entity.Active,
+		"timestamp": bson.M{"$lt": timestamp},
+	}
+
+	cursor, err := ar.Collection.Find(ctx, filter)
+	if err != nil {
+		logger.Error("Error finding expired auctions", err)
+		return nil, internal_error.NewInternalServerError("Error finding expired auctions")
+	}
+	defer cursor.Close(ctx)
+
+	var auctionsMongo []AuctionEntityMongo
+	if err := cursor.All(ctx, &auctionsMongo); err != nil {
+		logger.Error("Error decoding expired auctions", err)
+		return nil, internal_error.NewInternalServerError("Error decoding expired auctions")
 	}
 
 	var auctionsEntity []auction_entity.Auction

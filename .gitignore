@@ -1,0 +1,50 @@
+# Binários Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+auction
+
+# Arquivos de teste
+*.test
+
+# Arquivos de profiling do Go
+*.out
+*.prof
+
+# Dependências de vendor
+vendor/
+
+# Go workspace file
+go.work
+
+# Arquivos de ambiente - MANTER EXEMPLO
+cmd/auction/.env
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Docker
+docker-compose.override.yml
+
+# Dados temporários
+tmp/
+temp/
+
+/.gihub

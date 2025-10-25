@@ -3,8 +3,9 @@ package auction_entity
 import (
 	"context"
 	"fullcycle-auction_go/internal/internal_error"
-	"github.com/google/uuid"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 func CreateAuction(
@@ -30,7 +31,8 @@ func CreateAuction(
 func (au *Auction) Validate() *internal_error.InternalError {
 	if len(au.ProductName) <= 1 ||
 		len(au.Category) <= 2 ||
-		len(au.Description) <= 10 && (au.Condition != New &&
+		len(au.Description) <= 10 ||
+		(au.Condition != New &&
 			au.Condition != Refurbished &&
 			au.Condition != Used) {
 		return internal_error.NewBadRequestError("invalid auction object")
@@ -75,4 +77,10 @@ type AuctionRepositoryInterface interface {
 
 	FindAuctionById(
 		ctx context.Context, id string) (*Auction, *internal_error.InternalError)
+
+	UpdateAuctionStatus(
+		ctx context.Context, id string, status AuctionStatus) *internal_error.InternalError
+
+	FindActiveAuctionsOlderThan(
+		ctx context.Context, timestamp int64) ([]Auction, *internal_error.InternalError)
 }
