@@ -212,5 +212,5 @@ Para debug adicional, ajuste o nível de log ou adicione logs personalizados no 
 
 Este projeto foi desenvolvido como atividade avaliativa do curso Go Expert da Full Cycle.
 
-**Autor**: [Seu Nome]
+**Autor**: Thyrso Mancini Neto
 **Repositório**: https://github.com/thyrso/PosGoExpert-Labs-02
